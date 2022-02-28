@@ -10,6 +10,13 @@ ENV RABBITMQ_USERNAME admindev
 ENV RABBITMQ_PASSWORD 1
 ENV RABBITMQ_PID_FILE /var/lib/rabbitmq/mnesia/rabbitmq
 
+# create a dedicated group and user
+RUN addgroup -g 1000 runner \
+    && adduser -u 1000 -G runner -s /bin/sh -D runner
+
+RUN apk update \
+    && apk add --no-cache --upgrade bash
+
 # enableing rabbitmq plugins
 RUN rabbitmq-plugins enable --offline \
     rabbitmq_auth_backend_cache \
@@ -23,6 +30,7 @@ RUN rabbitmq-plugins enable --offline \
     rabbitmq_web_stomp
 
 ADD init.sh /init.sh
+
 RUN chmod +x /init.sh
 
 COPY rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
